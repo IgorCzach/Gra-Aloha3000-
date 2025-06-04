@@ -1,7 +1,7 @@
 #include "Player.h"
 #include <SFML/Window/Keyboard.hpp>
 
-const float GRAVITY = 800.0f;
+const float GRAVITY = 1000.0f;
 const float JUMP_VELOCITY = -400.f;
 
 Player::Player(float x, float y)

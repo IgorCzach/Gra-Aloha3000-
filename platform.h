@@ -7,5 +7,6 @@ public:
     virtual void draw(sf::RenderWindow& window) const = 0;
     virtual sf::FloatRect getBounds() const = 0;
     virtual int getID() const = 0;
+    virtual void update(float deltaTime);
 };
 

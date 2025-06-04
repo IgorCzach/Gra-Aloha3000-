@@ -1,7 +1,7 @@
 #include "Game.h"
 
-const int WINDOW_WIDTH = 800;
-const int WINDOW_HEIGHT = 600;
+const int WINDOW_WIDTH = 700;
+const int WINDOW_HEIGHT = 550;
 
 Game::Game()
     : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Aloha3000"),
@@ -33,6 +33,9 @@ void Game::processEvents() {
 
 void Game::update(float deltaTime) {
     player.update(platforms, deltaTime);
+    for (Platform* platform : platforms) {
+        platform->update(deltaTime);
+    }
 
     sf::Vector2f playerPos = player.getPosition();
     float viewY = cameraView.getCenter().y;
@@ -51,7 +54,7 @@ void Game::render() {
 }
 
 void Game::initPlatforms() {
-    const int numPlatforms = 15;
+    const int numPlatforms = 30;
     const float platformHeight = 0.1f;
     const float verticalSpacing = 60.0f;
     const float maxHorizontalOffset = 150.f;
@@ -64,7 +67,7 @@ void Game::initPlatforms() {
     platforms.clear();
     platforms.reserve(numPlatforms);
 
-    for (int i = 0; i < numPlatforms; ++i) {
+    for (int i = 0; i < 15; ++i) {
         float width = (i == 0) ? WINDOW_WIDTH / 100.f : platformWidth;
         float x;
 
@@ -81,6 +84,22 @@ void Game::initPlatforms() {
         platforms.push_back(platform);
         lastX = x;
     }
+    for (int i = 15; i < numPlatforms; ++i) {
+        currentY -= verticalSpacing;
+
+        float width = platformWidth;
+        float x = std::clamp(
+            lastX + static_cast<float>((std::rand() % int(2 * maxHorizontalOffset)) - maxHorizontalOffset),
+            0.f,
+            WINDOW_WIDTH - width * 100.f
+            );
+
+        Platform* moving = new MovingPlatform(x, currentY, width, platformHeight, i);
+        platforms.push_back(moving);
+        lastX = x;
+    }
+
+
 }
 
 

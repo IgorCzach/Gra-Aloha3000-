@@ -1,8 +1,10 @@
 #include "MovingPlatform.h"
+#include <cstdlib>
 
 MovingPlatform::MovingPlatform(float x, float y, float width, float height, int id)
-    : StaticPlatform(x, y, width, height, id) {}
-
+    : StaticPlatform(x, y, width, height, id) {
+    direction = (std::rand() % 2 == 0) ? 1.f : -1.f;
+}
 void MovingPlatform::update(float deltaTime) {
     shape.move(speed * direction * deltaTime, 0.f);
     float left = shape.getPosition().x;

@@ -7,6 +7,7 @@ SOURCES += \
         game.cpp \
         main.cpp \
         movingplatform.cpp \
+        platform.cpp \
         platformtracker.cpp \
         player.cpp \
         staticplatform.cpp
