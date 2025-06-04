@@ -19,6 +19,8 @@ void Game::run() {
     }
 }
 
+
+
 void Game::processEvents() {
     sf::Event event;
     while (window.pollEvent(event)) {
@@ -49,24 +51,35 @@ void Game::render() {
 }
 
 void Game::initPlatforms() {
-    const int numPlatforms = 50;
+    const int numPlatforms = 15;
     const float platformHeight = 0.1f;
-    const float verticalSpacing = 45.0f;
+    const float verticalSpacing = 60.0f;
+    const float maxHorizontalOffset = 150.f;
+    const float platformWidth = 1.0f;
+
 
     float currentY = WINDOW_HEIGHT - 40.f;
+    float lastX = 0.f;
 
+    platforms.clear();
     platforms.reserve(numPlatforms);
 
     for (int i = 0; i < numPlatforms; ++i) {
-        float width = (i == 0) ? WINDOW_WIDTH / 100.f : 1.0f;
-        float x = (i == 0) ? 0.f : static_cast<float>(std::rand() % (WINDOW_WIDTH - static_cast<int>(width * 100)));
-        if (i != 0) currentY -= verticalSpacing;
+        float width = (i == 0) ? WINDOW_WIDTH / 100.f : platformWidth;
+        float x;
 
-        Platform* platform = (i >= 10)
-                                 ? static_cast<Platform*>(new MovingPlatform(x, currentY, width, platformHeight, i))
-                                 : static_cast<Platform*>(new StaticPlatform(x, currentY, width, platformHeight, i));
+        if (i == 0) {
+            x = 0.f;
+        } else {
+            currentY -= verticalSpacing;
+            float minX = std::max(0.f, lastX - maxHorizontalOffset);
+            float maxX = std::min(WINDOW_WIDTH - width * 100.f, lastX + maxHorizontalOffset);
+            x = minX + static_cast<float>(std::rand()) / RAND_MAX * (maxX - minX);
+        }
 
+        Platform* platform = new StaticPlatform(x, currentY, width, platformHeight, i);
         platforms.push_back(platform);
+        lastX = x;
     }
 }
 

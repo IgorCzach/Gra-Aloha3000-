@@ -17,8 +17,10 @@ private:
     void render();
     void initPlatforms();
 
+
     sf::RenderWindow window;
     Player player;
     sf::View cameraView;
     std::vector<Platform*> platforms;
 };
+
