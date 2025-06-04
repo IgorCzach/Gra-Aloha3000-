@@ -1,7 +1,7 @@
 #include "Game.h"
 
 const int WINDOW_WIDTH = 700;
-const int WINDOW_HEIGHT = 550;
+const int WINDOW_HEIGHT = 500;
 
 Game::Game()
     : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Aloha3000"),
@@ -14,7 +14,11 @@ void Game::run() {
     while (window.isOpen()) {
         float deltaTime = clock.restart().asSeconds();
         processEvents();
-        update(deltaTime);
+
+        if (!isGameOver) {
+            update(deltaTime);
+        }
+
         render();
     }
 }
@@ -42,6 +46,9 @@ void Game::update(float deltaTime) {
     if (playerPos.y < viewY - 100.f) {
         cameraView.setCenter(WINDOW_WIDTH / 2.f, playerPos.y + 100.f);
     }
+    if (player.getPosition().y > WINDOW_HEIGHT) {
+        isGameOver = true;
+    }
 }
 
 void Game::render() {
@@ -51,6 +58,8 @@ void Game::render() {
         platform->draw(window);
     player.draw(window);
     window.display();
+
+
 }
 
 void Game::initPlatforms() {
@@ -98,6 +107,7 @@ void Game::initPlatforms() {
         platforms.push_back(moving);
         lastX = x;
     }
+
 
 
 }

@@ -59,11 +59,14 @@ void Player::update(std::vector<Platform*>& platforms, float deltaTime) {
                     currentPlatformID = p->getID();
                     previousPlatformID = currentPlatformID;
                 }
+                standingOn = dynamic_cast<MovingPlatform*>(p); // pamietanie ze sie stoi na ruchomej platformie
             }
         }
 
     }
-
+    if (standingOn) {
+        shape.move(standingOn->getMovementOffset(deltaTime));
+    }
     animate(deltaTime);
 }
 

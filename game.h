@@ -16,8 +16,7 @@ private:
     void update(float deltaTime);
     void render();
     void initPlatforms();
-
-
+    bool isGameOver = false;
     sf::RenderWindow window;
     Player player;
     sf::View cameraView;

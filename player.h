@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include "Platform.h"
+#include "movingplatform.h"
 
 class Player {
 public:
@@ -17,6 +18,7 @@ public:
 private:
     sf::RectangleShape shape;
     sf::Vector2f velocity;
+    MovingPlatform* standingOn = nullptr;
 
     float animationTimer;
     const float animationDelay = 0.15f;

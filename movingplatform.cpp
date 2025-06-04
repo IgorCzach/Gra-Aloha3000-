@@ -13,3 +13,6 @@ void MovingPlatform::update(float deltaTime) {
         direction *= -1.f;
     }
 }
+sf::Vector2f MovingPlatform::getMovementOffset(float deltaTime) const {
+    return sf::Vector2f(speed * direction * deltaTime, 0.f);
+}
