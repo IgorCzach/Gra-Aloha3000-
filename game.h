@@ -4,7 +4,9 @@
 #include <memory>
 #include "Player.h"
 #include "StaticPlatform.h"
+#include "button.h"
 #include"movingplatform.h"
+
 
 class Game {
 public:
@@ -21,5 +23,17 @@ private:
     Player player;
     sf::View cameraView;
     std::vector<Platform*> platforms;
+    enum class GameState { StartMenu, ShowingInstructions, Playing, GameOver };
+    GameState currentState = GameState::StartMenu;
+    sf::Font font;
+    sf::Texture startTexture;
+    sf::Sprite startSprite;
+    sf::Texture playButtonTexture;
+    sf::Sprite playButtonSprite;
+    sf::Texture instructionsTexture;
+    sf::Sprite instructionsSprite;
+    sf::Texture playButtonTexture2;
+    sf::Sprite playButtonSprite2;
+
 };
 

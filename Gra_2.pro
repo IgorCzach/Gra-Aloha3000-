@@ -10,7 +10,8 @@ SOURCES += \
         platform.cpp \
         platformtracker.cpp \
         player.cpp \
-        staticplatform.cpp
+        staticplatform.cpp \
+        texturemenager.cpp
 INCLUDEPATH += "C:\aplikacje\SFML-2.6.1-windows-gcc-13.1.0-mingw-64-bit\SFML-2.6.1\include" \
 
 LIBS += -L"C:\aplikacje\SFML-2.6.1-windows-gcc-13.1.0-mingw-64-bit\SFML-2.6.1\lib"
@@ -21,10 +22,12 @@ CONFIG(debug, debug|release){
 }
 
 HEADERS += \
+    button.h \
     config.h \
     game.h \
     movingplatform.h \
     platform.h \
     platformtracker.h \
     player.h \
-    staticplatform.h
+    staticplatform.h \
+    texturemenager.h

@@ -8,6 +8,6 @@ public:
     sf::Vector2f getMovementOffset(float deltaTime) const;
 private:
     float direction;
-    float speed = 150.0f;
+    float speed = 120.0f;
 
 };

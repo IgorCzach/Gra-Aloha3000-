@@ -1,5 +1,6 @@
 #include "Player.h"
 #include <SFML/Window/Keyboard.hpp>
+#include "texturemenager.h"
 
 const float GRAVITY = 1000.0f;
 const float JUMP_VELOCITY = -400.f;
@@ -7,9 +8,13 @@ const float JUMP_VELOCITY = -400.f;
 Player::Player(float x, float y)
     : velocity(0.f, 0.f), animationTimer(0.f), currentState(Standing),
     isOnGround(false), isInAir(true), currentPlatformID(-1), previousPlatformID(-1) {
+
     shape.setPosition(x, y);
     shape.setSize(sf::Vector2f(40.f, 60.f));
-    shape.setFillColor(sf::Color::Green);
+
+    shape.setTexture(&TextureManager::getTexture("./gracz6.png"));
+
+    shape.setTextureRect(sf::IntRect(0, 0, 90, 180));
 }
 
 void Player::handleInput() {

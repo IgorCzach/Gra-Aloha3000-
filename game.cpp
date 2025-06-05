@@ -1,23 +1,41 @@
 #include "Game.h"
+#include "iostream"
 
 const int WINDOW_WIDTH = 700;
 const int WINDOW_HEIGHT = 500;
 
 Game::Game()
     : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Aloha3000"),
-    player((WINDOW_WIDTH - 40.f) / 2.f, WINDOW_HEIGHT - 100.f) {
-    initPlatforms();
+    player((WINDOW_WIDTH - 40.f) / 2.f, WINDOW_HEIGHT - 100.f),currentState(GameState::StartMenu) {
+    if (!startTexture.loadFromFile("./redbull.png")) {
+        std::cerr << "Nie można załadować tła startowego!\n";
+        exit(1);
+    }
+    startSprite.setTexture(startTexture);
+
+    if (!playButtonTexture.loadFromFile("./button.png")) {
+        std::cerr << "Nie można załadować grafiki przycisku graj!\n";
+        exit(1);
+    }
+    playButtonSprite.setTexture(playButtonTexture);
+    playButtonSprite.setPosition((WINDOW_WIDTH - playButtonTexture.getSize().x) / 2.f, 400.f);
+    if (!instructionsTexture.loadFromFile("./instrukcja.png")) {
+        std::cerr << "Nie można załadować grafiki z zasadami!\n";
+        exit(1);
+    }
+    instructionsSprite.setTexture(instructionsTexture);
+
 }
 
 void Game::run() {
+
     sf::Clock clock;
     while (window.isOpen()) {
         float deltaTime = clock.restart().asSeconds();
         processEvents();
 
-        if (!isGameOver) {
+        if (currentState == GameState::Playing && !isGameOver)
             update(deltaTime);
-        }
 
         render();
     }
@@ -30,9 +48,26 @@ void Game::processEvents() {
     while (window.pollEvent(event)) {
         if (event.type == sf::Event::Closed)
             window.close();
+
+        if (currentState == GameState::StartMenu && event.type == sf::Event::MouseButtonPressed) {
+            if (event.mouseButton.button == sf::Mouse::Left) {
+                sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+                if (playButtonSprite.getGlobalBounds().contains(mousePos)) {
+                    currentState = GameState::ShowingInstructions;
+                }
+            }
+        } else if (currentState == GameState::ShowingInstructions && event.type == sf::Event::MouseButtonPressed) {
+            if (event.mouseButton.button == sf::Mouse::Left) {
+                currentState = GameState::Playing;
+                initPlatforms();
+            }
+        }
     }
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) player.jump();
+    if (currentState == GameState::Playing) {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+            player.jump();
+    }
 }
 
 void Game::update(float deltaTime) {
@@ -53,18 +88,26 @@ void Game::update(float deltaTime) {
 
 void Game::render() {
     window.clear();
-    window.setView(cameraView);
-    for (auto* platform : platforms)
-        platform->draw(window);
-    player.draw(window);
-    window.display();
 
+    if (currentState == GameState::StartMenu) {
+        window.draw(startSprite);
+        window.draw(playButtonSprite);
+    } else if (currentState == GameState::ShowingInstructions) {
+        window.draw(instructionsSprite);
+    } else if (currentState == GameState::Playing) {
+        window.setView(cameraView);
+        for (auto* platform : platforms)
+            platform->draw(window);
+        player.draw(window);
+    }
+
+    window.display();
 
 }
 
 void Game::initPlatforms() {
     const int numPlatforms = 30;
-    const float platformHeight = 0.1f;
+    const float platformHeight = 0.22f;
     const float verticalSpacing = 60.0f;
     const float maxHorizontalOffset = 150.f;
     const float platformWidth = 1.0f;
