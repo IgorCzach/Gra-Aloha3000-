@@ -24,6 +24,16 @@ Game::Game()
         exit(1);
     }
     instructionsSprite.setTexture(instructionsTexture);
+    if (!font.loadFromFile("./PressStart2P-Regular.ttf")) {
+        std::cerr << "Nie udało się załadować czcionki!\n";
+    }
+    timerText.setFont(font);
+    timerText.setCharacterSize(20);
+    timerText.setFillColor(sf::Color::White);
+    timerText.setPosition(10.f, 10.f);
+    topBar.setSize({ WINDOW_WIDTH, 40 });
+    topBar.setFillColor(sf::Color(50, 50, 50, 200));
+    topBar.setPosition(0, 0);
 
 }
 
@@ -73,8 +83,14 @@ void Game::processEvents() {
 void Game::update(float deltaTime) {
     player.update(platforms, deltaTime);
     for (Platform* platform : platforms) {
+
         platform->update(deltaTime);
+
     }
+    sf::Time elapsed = gameClock.getElapsedTime();
+    int seconds = static_cast<int>(elapsed.asSeconds());
+
+    timerText.setString("Czas: " + std::to_string(seconds) + " s");
 
     sf::Vector2f playerPos = player.getPosition();
     float viewY = cameraView.getCenter().y;
@@ -87,21 +103,35 @@ void Game::update(float deltaTime) {
 }
 
 void Game::render() {
+
+
     window.clear();
 
     if (currentState == GameState::StartMenu) {
+        window.setView(window.getDefaultView());
         window.draw(startSprite);
         window.draw(playButtonSprite);
+
     } else if (currentState == GameState::ShowingInstructions) {
+        window.setView(window.getDefaultView());
         window.draw(instructionsSprite);
+
     } else if (currentState == GameState::Playing) {
+        // 1. Widok gry (z kamerą)
         window.setView(cameraView);
         for (auto* platform : platforms)
             platform->draw(window);
         player.draw(window);
+
+        // 2. Widok UI (statyczny) – reset widoku
+        window.setView(window.getDefaultView());
+        window.draw(topBar);
+        window.draw(timerText);
     }
 
     window.display();
+
+
 
 }
 
@@ -119,7 +149,7 @@ void Game::initPlatforms() {
     platforms.clear();
     platforms.reserve(numPlatforms);
 
-    for (int i = 0; i < 15; ++i) {
+    for (int i = 0; i < 10; ++i) {
         float width = (i == 0) ? WINDOW_WIDTH / 100.f : platformWidth;
         float x;
 
@@ -132,11 +162,22 @@ void Game::initPlatforms() {
             x = minX + static_cast<float>(std::rand()) / RAND_MAX * (maxX - minX);
         }
 
-        Platform* platform = new StaticPlatform(x, currentY, width, platformHeight, i);
+        Platform* platform;
+        if (i == 6) {
+            platform = new SharkPlatform(x, currentY, width, platformHeight, i); // 🦈 Rekin jako 6.
+        } else {
+            platform = new StaticPlatform(x, currentY, width, platformHeight, i);
+        }
+
         platforms.push_back(platform);
         lastX = x;
+        //Platform* platform = new StaticPlatform(x, currentY, width, platformHeight, i);
+       // platforms.push_back(platform);
+        //lastX = x;
+
+
     }
-    for (int i = 15; i < numPlatforms; ++i) {
+    for (int i = 10; i < numPlatforms; ++i) {
         currentY -= verticalSpacing;
 
         float width = platformWidth;

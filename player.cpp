@@ -64,8 +64,11 @@ void Player::update(std::vector<Platform*>& platforms, float deltaTime) {
                     currentPlatformID = p->getID();
                     previousPlatformID = currentPlatformID;
                 }
-                standingOn = dynamic_cast<MovingPlatform*>(p); // pamietanie ze sie stoi na ruchomej platformie
+                standingOn = dynamic_cast<MovingPlatform*>(p);
+
+
             }
+
         }
 
     }
@@ -102,4 +105,8 @@ sf::FloatRect Player::getHitbox() const {
 
 sf::Vector2f Player::getPosition() const {
     return shape.getPosition();
+}
+void Player::teleportToStart() {
+    shape.setPosition(0.f, 20.f);
+    velocity = sf::Vector2f(0.f, 0.f);
 }

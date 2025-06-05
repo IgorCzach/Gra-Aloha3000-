@@ -6,7 +6,7 @@
 #include "StaticPlatform.h"
 #include "button.h"
 #include"movingplatform.h"
-
+#include "sharkplatform.h"
 
 class Game {
 public:
@@ -34,6 +34,9 @@ private:
     sf::Sprite instructionsSprite;
     sf::Texture playButtonTexture2;
     sf::Sprite playButtonSprite2;
+    sf::Text timerText;
+    sf::Clock gameClock;
+    sf::RectangleShape topBar;
 
 };
 
