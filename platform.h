@@ -8,5 +8,6 @@ public:
     virtual sf::FloatRect getBounds() const = 0;
     virtual int getID() const = 0;
     virtual void update(float deltaTime);
+    virtual sf::Vector2f getPosition() const = 0;
 };
 

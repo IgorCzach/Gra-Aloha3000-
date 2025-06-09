@@ -99,6 +99,17 @@ void Player::teleport() {
     shape.setPosition(shape.getPosition().x, 431.f);
 }
 
+//metoda była potzrebna do wykrywania platformy z góry a nie od boku
+//ustawiam w niej małą odległość nad platforma tak aby gracz dotykał ją stopami
+sf::FloatRect Player::getBounds() const {
+    sf::FloatRect bounds = shape.getGlobalBounds();
+    return sf::FloatRect(
+        bounds.left,
+        bounds.top + bounds.height - 5.f,
+        bounds.width,
+        5.f
+        );
+}
 sf::FloatRect Player::getHitbox() const {
     return shape.getGlobalBounds();
 }
@@ -125,4 +136,7 @@ void Player::resetState(){
     isOnGround = true;
     currentState = Standing;
     standingOn = nullptr;
+}
+void Player::resetHP(){
+    hp = 3;
 }

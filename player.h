@@ -16,8 +16,10 @@ public:
     sf::FloatRect getHitbox() const;
     sf::Vector2f getPosition() const;
     void teleportToStart();
-    sf::FloatRect getBounds() const { return getHitbox(); }
+    sf::FloatRect getBounds() const;
     void resetState();
+    int hp=3;
+    void resetHP();
 
 
 private:
@@ -27,7 +29,7 @@ private:
 
     float animationTimer;
     const float animationDelay = 0.15f;
-   const float moveSpeed = 200.0f;
+    const float moveSpeed = 200.0f;
 
     enum State { Standing, Jumping, MovingLeft, MovingRight } currentState;
     void animate(float deltaTime);

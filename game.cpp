@@ -27,18 +27,33 @@ Game::Game()
     if (!font.loadFromFile("./PressStart2P-Regular.ttf")) {
         std::cerr << "Nie udało się załadować czcionki!\n";
     }
-    timerText.setFont(font);
-    timerText.setCharacterSize(20);
-    timerText.setFillColor(sf::Color::White);
-    timerText.setPosition(10.f, 10.f);
-    topBar.setSize({ WINDOW_WIDTH, 40 });
-    topBar.setFillColor(sf::Color(50, 50, 50, 200));
-    topBar.setPosition(0, 0);
+    if (!heartTexture.loadFromFile("./serce.png")) {
+        std::cerr << "Nie można załadować grafiki serce!\n";
+        exit(1);
+    }
+    updateHeartsDisplay();
+    if (!victoryTexture.loadFromFile("./wygrana.png")) {
+        std::cerr << "Błąd ładowania victory.png\n";
+        exit(1);
+    }
+    victorySprite.setTexture(victoryTexture);
+
+
     if (!gameOverTexture.loadFromFile("./gameover.png")) {
         std::cerr << "Błąd ładowania gameover.png\n";
     }
     gameOverSprite.setTexture(gameOverTexture);
     gameOverSprite.setPosition(0, 0);
+
+
+    timerText.setFont(font);
+    timerText.setCharacterSize(20);
+    timerText.setFillColor(sf::Color::White);
+    timerText.setPosition(10.f, 10.f);
+
+    topBar.setSize({ WINDOW_WIDTH, 40 });
+    topBar.setFillColor(sf::Color(50, 50, 50, 200));
+    topBar.setPosition(0, 0);
 
     restartButton.setSize({200, 50});
     restartButton.setPosition(80, 400);
@@ -65,6 +80,8 @@ Game::Game()
     finalTimeText.setFillColor(sf::Color::White);
     finalTimeText.setPosition(220.0f, 150.0f);
     playerStartY = player.getPosition().y;
+
+
 
 }
 
@@ -114,6 +131,8 @@ void Game::processEvents() {
         sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 
         if (restartButton.getGlobalBounds().contains(mousePos)) {
+            player.resetHP();
+            updateHeartsDisplay();
             player.teleportToStart();
             player.resetState();
             initPlatforms();
@@ -125,6 +144,7 @@ void Game::processEvents() {
             window.close();
         }
     }
+
 }
 
 void Game::update(float deltaTime) {
@@ -138,25 +158,61 @@ void Game::update(float deltaTime) {
     int seconds = static_cast<int>(elapsed.asSeconds());
 
     timerText.setString("Czas: " + std::to_string(seconds) + " s");
-
-
-
-    //float cameraBottom = cameraView.getCenter().y + cameraView.getSize().y / 2.f;
     float currentY = player.getPosition().y;
 
-    if (currentY - playerStartY > 10.f) {
-        currentState = GameState::GameOver;
 
-        int seconds = static_cast<int>(gameClock.getElapsedTime().asSeconds());
-        finalTimeText.setString("Czas gry: " + std::to_string(seconds) + "s");
+    // znajdownie najwyższej platformy, której gracz dotknął
+    for (Platform* platform : platforms) {
+        if (player.getBounds().intersects(platform->getBounds())) {
+            highestPlatformY = platform->getPosition().y;
+            break;
+        }
+    }
 
-        return;
+    float fallDistance = currentY - highestPlatformY;
+    int fallenPlatforms = static_cast<int>(fallDistance / 60.0f);
+
+    if (fallenPlatforms >= 3) {
+        int damage = 0;
+        if (fallenPlatforms >= 9) {
+            damage = 3;
+        } else if (fallenPlatforms >= 6) {
+            damage = 2;
+        } else {
+            damage = 1;
+        }
+
+        player.hp -= damage;
+        updateHeartsDisplay();
+
+        if (player.hp <= 0) {
+            currentState = GameState::GameOver;
+            finalTimeText.setString("Czas gry: " + std::to_string(static_cast<int>(gameClock.getElapsedTime().asSeconds())) + "s");
+            return;
+        }
+        highestPlatformY = currentY;
     }
     sf::Vector2f playerStart = player.getPosition();
     cameraView.setCenter(WINDOW_WIDTH / 2.f, playerStart.y + 100.f);
-    //if (playerPos.y < viewY - 100.f) {
-       // cameraView.setCenter(WINDOW_WIDTH / 2.f, playerPos.y + 100.f);
-  //  }
+    if (!platforms.empty()) {
+        Platform* lastPlatform = platforms.back();
+        sf::FloatRect platformBounds = lastPlatform->getBounds();
+        sf::FloatRect playerFeet = player.getBounds();
+
+        //duzy problem był z wykryciem osotaniej platformy i z kolizja z nią
+        //naprawinie problemu - odpowienie ustwainie odległosci
+        //bool sprawdza czy gracz stoi
+        bool standsOn =
+            playerFeet.top + playerFeet.height <= platformBounds.top + 2.f && // górna powierzchnia
+            playerFeet.top + playerFeet.height >= platformBounds.top - 5.f && // nie za wysoko
+            playerFeet.left + playerFeet.width > platformBounds.left + 5.f &&
+            playerFeet.left < platformBounds.left + platformBounds.width - 5.f;
+
+        if (standsOn) {
+            currentState = GameState::Victory;
+        }
+    }
+
 
 }
 
@@ -185,6 +241,9 @@ void Game::render() {
         window.setView(window.getDefaultView());
         window.draw(topBar);
         window.draw(timerText);
+        for (const auto& heart : hearts) {
+            window.draw(heart);
+        }
     }
     else if(currentState == GameState::GameOver){
         window.setView(window.getDefaultView());
@@ -195,6 +254,11 @@ void Game::render() {
         window.draw(restartText);
         window.draw(endText);
     }
+    else if (currentState == GameState::Victory) {
+        window.setView(window.getDefaultView());
+        window.draw(victorySprite);
+        window.draw(finalTimeText);
+    }
 
     window.display();
 
@@ -203,8 +267,8 @@ void Game::render() {
 }
 
 void Game::initPlatforms() {
-    const int numPlatforms = 30;
-    const float platformHeight = 0.22f;
+    const int numPlatforms = 12;
+    const float platformHeight = 0.23f;
     const float verticalSpacing = 60.0f;
     const float maxHorizontalOffset = 150.f;
     const float platformWidth = 1.0f;
@@ -231,7 +295,7 @@ void Game::initPlatforms() {
 
         Platform* platform;
         if (i == 6) {
-            platform = new SharkPlatform(x, currentY, width, platformHeight, i); // 🦈 Rekin jako 6.
+            platform = new SharkPlatform(x, currentY, width, platformHeight, i);
         } else {
             platform = new StaticPlatform(x, currentY, width, platformHeight, i);
         }
@@ -261,6 +325,31 @@ void Game::initPlatforms() {
 
 
 
+}
+void Game::updateHeartsDisplay() {
+    hearts.clear();
+
+    float targetHeartHeight = 30.f;
+    float scale = targetHeartHeight / heartTexture.getSize().y;
+
+    float margin = 10.f;
+    //odstęp między sercami
+    float spacing = 5.f;
+    float startX = WINDOW_WIDTH - margin;
+
+    for (int i = 0; i < player.hp; ++i) {
+        sf::Sprite sprite;
+        sprite.setTexture(heartTexture);
+        sprite.setScale(scale, scale);
+
+        sf::FloatRect bounds = sprite.getGlobalBounds();
+        startX -= bounds.width;
+
+        sprite.setPosition(startX, (40.f - bounds.height) / 2.f);
+        hearts.push_back(sprite);
+
+        startX -= spacing;
+    }
 }
 
 

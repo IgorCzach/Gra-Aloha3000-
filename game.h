@@ -23,7 +23,7 @@ private:
     Player player;
     sf::View cameraView;
     std::vector<Platform*> platforms;
-    enum class GameState { StartMenu, ShowingInstructions, Playing, GameOver };
+    enum class GameState { StartMenu, ShowingInstructions, Playing, GameOver, Victory };
     GameState currentState = GameState::StartMenu;
     sf::Font font;
     sf::Texture startTexture;
@@ -46,6 +46,13 @@ private:
     sf::Text endText;
     sf::Text finalTimeText;
     float playerStartY = 0.f;
+    sf::Texture heartTexture;
+    sf::Sprite heartSprite;
+    std::vector<sf::Sprite> hearts;
+    void updateHeartsDisplay();
+    float highestPlatformY = player.getPosition().y; //potrzebne do poźniejszesjej implementacji odejmowania hp przy spadaniu
+    sf::Texture victoryTexture;
+    sf::Sprite victorySprite;
 
 };
 

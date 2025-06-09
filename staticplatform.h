@@ -8,8 +8,10 @@ public:
     void draw(sf::RenderWindow& window) const override;
     sf::FloatRect getBounds() const override;
     int getID() const override;
+    sf::Vector2f getPosition() const override;
 
 protected:
     sf::RectangleShape shape;
     int m_platformID;
+
 };
