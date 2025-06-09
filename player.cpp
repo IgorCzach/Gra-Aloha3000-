@@ -107,6 +107,22 @@ sf::Vector2f Player::getPosition() const {
     return shape.getPosition();
 }
 void Player::teleportToStart() {
-    shape.setPosition(0.f, 20.f);
+    float playerWidth = shape.getSize().x;
+    float playerHeight = shape.getSize().y;
+
+    float platformX = 0.f;
+    float platformY = 460.f;
+
+    float x = platformX + (700.f - playerWidth) / 2.f;
+    float y = platformY - playerHeight;
+
+    shape.setPosition(x, y);
+    //velocity = sf::Vector2f(0.f, 0.f);
+}
+void Player::resetState(){
     velocity = sf::Vector2f(0.f, 0.f);
+    isInAir = false;
+    isOnGround = true;
+    currentState = Standing;
+    standingOn = nullptr;
 }

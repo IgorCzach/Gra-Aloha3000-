@@ -17,6 +17,8 @@ public:
     sf::Vector2f getPosition() const;
     void teleportToStart();
     sf::FloatRect getBounds() const { return getHitbox(); }
+    void resetState();
+
 
 private:
     sf::RectangleShape shape;

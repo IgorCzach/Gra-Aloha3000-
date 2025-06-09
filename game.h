@@ -37,6 +37,15 @@ private:
     sf::Text timerText;
     sf::Clock gameClock;
     sf::RectangleShape topBar;
+    sf::Texture gameOverTexture;
+    sf::Sprite gameOverSprite;
+
+    sf::RectangleShape restartButton;
+    sf::RectangleShape endButton;
+    sf::Text restartText;
+    sf::Text endText;
+    sf::Text finalTimeText;
+    float playerStartY = 0.f;
 
 };
 

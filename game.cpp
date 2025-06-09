@@ -34,6 +34,37 @@ Game::Game()
     topBar.setSize({ WINDOW_WIDTH, 40 });
     topBar.setFillColor(sf::Color(50, 50, 50, 200));
     topBar.setPosition(0, 0);
+    if (!gameOverTexture.loadFromFile("./gameover.png")) {
+        std::cerr << "Błąd ładowania gameover.png\n";
+    }
+    gameOverSprite.setTexture(gameOverTexture);
+    gameOverSprite.setPosition(0, 0);
+
+    restartButton.setSize({200, 50});
+    restartButton.setPosition(80, 400);
+    restartButton.setFillColor(sf::Color::Green);
+
+    endButton.setSize({200, 50});
+    endButton.setPosition(420, 400);
+    endButton.setFillColor(sf::Color::Red);
+
+    restartText.setFont(font);
+    restartText.setString("PLAY AGAIN");
+    restartText.setCharacterSize(16);
+    restartText.setFillColor(sf::Color::White);
+    restartText.setPosition(100, 410);
+
+    endText.setFont(font);
+    endText.setString("END GAME");
+    endText.setCharacterSize(16);
+    endText.setFillColor(sf::Color::White);
+    endText.setPosition(460, 410);
+
+    finalTimeText.setFont(font);
+    finalTimeText.setCharacterSize(19);
+    finalTimeText.setFillColor(sf::Color::White);
+    finalTimeText.setPosition(220.0f, 150.0f);
+    playerStartY = player.getPosition().y;
 
 }
 
@@ -69,6 +100,7 @@ void Game::processEvents() {
         } else if (currentState == GameState::ShowingInstructions && event.type == sf::Event::MouseButtonPressed) {
             if (event.mouseButton.button == sf::Mouse::Left) {
                 currentState = GameState::Playing;
+                gameClock.restart();
                 initPlatforms();
             }
         }
@@ -77,6 +109,21 @@ void Game::processEvents() {
     if (currentState == GameState::Playing) {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
             player.jump();
+    }
+    if (currentState == GameState::GameOver && event.type == sf::Event::MouseButtonPressed) {
+        sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
+        if (restartButton.getGlobalBounds().contains(mousePos)) {
+            player.teleportToStart();
+            player.resetState();
+            initPlatforms();
+            cameraView.setCenter(350.f, 250.f);
+            gameClock.restart();
+            currentState = GameState::Playing;
+        }
+        else if (endButton.getGlobalBounds().contains(mousePos)) {
+            window.close();
+        }
     }
 }
 
@@ -92,14 +139,25 @@ void Game::update(float deltaTime) {
 
     timerText.setString("Czas: " + std::to_string(seconds) + " s");
 
-    sf::Vector2f playerPos = player.getPosition();
-    float viewY = cameraView.getCenter().y;
-    if (playerPos.y < viewY - 100.f) {
-        cameraView.setCenter(WINDOW_WIDTH / 2.f, playerPos.y + 100.f);
+
+
+    //float cameraBottom = cameraView.getCenter().y + cameraView.getSize().y / 2.f;
+    float currentY = player.getPosition().y;
+
+    if (currentY - playerStartY > 10.f) {
+        currentState = GameState::GameOver;
+
+        int seconds = static_cast<int>(gameClock.getElapsedTime().asSeconds());
+        finalTimeText.setString("Czas gry: " + std::to_string(seconds) + "s");
+
+        return;
     }
-    if (player.getPosition().y > WINDOW_HEIGHT) {
-        isGameOver = true;
-    }
+    sf::Vector2f playerStart = player.getPosition();
+    cameraView.setCenter(WINDOW_WIDTH / 2.f, playerStart.y + 100.f);
+    //if (playerPos.y < viewY - 100.f) {
+       // cameraView.setCenter(WINDOW_WIDTH / 2.f, playerPos.y + 100.f);
+  //  }
+
 }
 
 void Game::render() {
@@ -127,6 +185,15 @@ void Game::render() {
         window.setView(window.getDefaultView());
         window.draw(topBar);
         window.draw(timerText);
+    }
+    else if(currentState == GameState::GameOver){
+        window.setView(window.getDefaultView());
+        window.draw(gameOverSprite);
+        window.draw(finalTimeText);
+        window.draw(restartButton);
+        window.draw(endButton);
+        window.draw(restartText);
+        window.draw(endText);
     }
 
     window.display();
