@@ -53,7 +53,24 @@ Game::Game()
     if (!backgroundMusic.openFromFile("./Muzyka2.mp3")) {
         std::cerr << "Nie można załadować muzyki!\n";
     }
+    if (!instrButtonTexture.loadFromFile("./Guzik_Instrukcja.png")) {
+        std::cerr << "Nie można załadować grafiki przycisku instrukcji!\n";
+        exit(1);
+    }
+    instrButtonSprite.setTexture(instrButtonTexture);
+    instrButtonSprite.setPosition(20.f, 450.f);
 
+    if (!instrTexture.loadFromFile("./Instr.png")) {
+        std::cerr << "Błąd ładowania instrukcj";
+    }
+    instrSprite.setTexture(instrTexture);
+
+    if (!backButtonTexture.loadFromFile("./Back.png")) {
+        std::cerr << "Nie można załadować grafiki przycisku back!\n";
+        exit(1);
+    }
+    backButtonSprite.setTexture(backButtonTexture);
+    backButtonSprite.setPosition(490.f, 20.f);
 
     timerText.setFont(font);
     timerText.setCharacterSize(20);
@@ -127,8 +144,14 @@ void Game::processEvents() {
                 if (playButtonSprite.getGlobalBounds().contains(mousePos)) {
                     currentState = GameState::ShowingInstructions;
                 }
+                else if(instrButtonSprite.getGlobalBounds().contains(mousePos)){
+                    currentState = GameState::Instr;
+                }
             }
-        } else if (currentState == GameState::ShowingInstructions && event.type == sf::Event::MouseButtonPressed) {
+        }
+
+
+         else if (currentState == GameState::ShowingInstructions && event.type == sf::Event::MouseButtonPressed) {
             if (event.mouseButton.button == sf::Mouse::Left) {
                 currentState = GameState::Playing;
                 gameClock.restart();
@@ -139,6 +162,16 @@ void Game::processEvents() {
             }
         }
     }
+
+    if (currentState == GameState::Instr && event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseButton.button == sf::Mouse::Left) {
+            sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+            if (backButtonSprite.getGlobalBounds().contains(mousePos)) {
+                currentState = GameState::StartMenu;
+            }
+        }
+    }
+
 
     if (currentState == GameState::Playing) {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
@@ -159,6 +192,7 @@ void Game::processEvents() {
             backgroundMusic.setLoop(true);
             backgroundMusic.setVolume(40.f);
             backgroundMusic.play();
+            collectedShells=0;
         }
         else if (endButton.getGlobalBounds().contains(mousePos)) {
             window.close();
@@ -268,6 +302,7 @@ void Game::render() {
         window.setView(window.getDefaultView());
         window.draw(startSprite);
         window.draw(playButtonSprite);
+        window.draw(instrButtonSprite);
 
     } else if (currentState == GameState::ShowingInstructions) {
         window.setView(window.getDefaultView());
@@ -306,6 +341,10 @@ void Game::render() {
         window.draw(victorySprite);
         window.draw(finalTimeText2);
     }
+    else if(currentState == GameState::Instr){
+        window.draw(instrSprite);
+        window.draw(backButtonSprite);
+    }
 
     window.display();
 
@@ -314,7 +353,7 @@ void Game::render() {
 }
 
 void Game::initPlatforms() {
-    const int numPlatforms = 16;
+    const int numPlatforms = 32;
     const float platformHeight = 0.23f;
     const float verticalSpacing = 60.0f;
     const float maxHorizontalOffset = 150.f;

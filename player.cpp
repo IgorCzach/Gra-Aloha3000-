@@ -12,7 +12,7 @@ Player::Player(float x, float y)
     shape.setPosition(x, y);
     shape.setSize(sf::Vector2f(40.f, 60.f));
 
-    shape.setTexture(&TextureManager::getTexture("./gracz6.png"));
+    shape.setTexture(&TextureManager::getTexture("./gracz1.png"));
 
     shape.setTextureRect(sf::IntRect(0, 0, 90, 180));
 }

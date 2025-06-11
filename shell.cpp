@@ -10,7 +10,7 @@ Shell::Shell(float x, float y, Platform* parent)
         textureLoaded = true;
     }
     sprite.setTexture(texture);
-    sprite.setScale(0.9f, 0.9f);
+    sprite.setScale(0.7f, 0.7f);
 
     if (parentPlatform) {
         offsetFromPlatform = { x - parent->getPosition().x, y - parent->getPosition().y };

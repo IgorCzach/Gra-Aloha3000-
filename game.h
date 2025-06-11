@@ -24,7 +24,7 @@ private:
     Player player;
     sf::View cameraView;
     std::vector<Platform*> platforms;
-    enum class GameState { StartMenu, ShowingInstructions, Playing, GameOver, Victory };
+    enum class GameState { StartMenu, ShowingInstructions, Playing, GameOver, Victory, Instr };
     GameState currentState = GameState::StartMenu;
     sf::Font font;
     sf::Texture startTexture;
@@ -60,7 +60,12 @@ private:
     sf::Music backgroundMusic;
     std::vector<Shell> shells;
     int collectedShells = 0;
-
+    sf::Texture instrButtonTexture;
+    sf::Sprite instrButtonSprite;
+    sf::Texture instrTexture;
+    sf::Sprite instrSprite;
+    sf::Texture backButtonTexture;
+    sf::Sprite backButtonSprite;
 
 };
 
