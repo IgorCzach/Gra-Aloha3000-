@@ -11,6 +11,7 @@ SOURCES += \
         platformtracker.cpp \
         player.cpp \
         sharkplatform.cpp \
+        shell.cpp \
         staticplatform.cpp \
         texturemenager.cpp
 INCLUDEPATH += "C:\aplikacje\SFML-2.6.1-windows-gcc-13.1.0-mingw-64-bit\SFML-2.6.1\include" \
@@ -31,5 +32,6 @@ HEADERS += \
     platformtracker.h \
     player.h \
     sharkplatform.h \
+    shell.h \
     staticplatform.h \
     texturemenager.h

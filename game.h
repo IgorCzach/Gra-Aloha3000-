@@ -7,7 +7,8 @@
 #include "button.h"
 #include"movingplatform.h"
 #include "sharkplatform.h"
-
+#include <SFML/Audio.hpp>
+#include "shell.h"
 class Game {
 public:
     Game();
@@ -53,6 +54,13 @@ private:
     float highestPlatformY = player.getPosition().y; //potrzebne do poźniejszesjej implementacji odejmowania hp przy spadaniu
     sf::Texture victoryTexture;
     sf::Sprite victorySprite;
+    sf::Texture backgroundTexture;
+    sf::Sprite backgroundSprite;
+    sf::Text finalTimeText2;
+    sf::Music backgroundMusic;
+    std::vector<Shell> shells;
+    int collectedShells = 0;
+
 
 };
 

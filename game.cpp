@@ -44,6 +44,15 @@ Game::Game()
     }
     gameOverSprite.setTexture(gameOverTexture);
     gameOverSprite.setPosition(0, 0);
+    if (!backgroundTexture.loadFromFile("C:/Users/Igor/Desktop/Gra_2/tlo3.png")) {
+        std::cerr << "Nie można załadować tła!\n";
+        exit(1);
+    }
+    backgroundSprite.setTexture(backgroundTexture);
+    backgroundSprite.setTextureRect(sf::IntRect(0,2000, WINDOW_WIDTH, 3000));
+    if (!backgroundMusic.openFromFile("./Muzyka2.mp3")) {
+        std::cerr << "Nie można załadować muzyki!\n";
+    }
 
 
     timerText.setFont(font);
@@ -80,6 +89,11 @@ Game::Game()
     finalTimeText.setFillColor(sf::Color::White);
     finalTimeText.setPosition(220.0f, 150.0f);
     playerStartY = player.getPosition().y;
+
+    finalTimeText2.setFont(font);
+    finalTimeText2.setCharacterSize(19);
+    finalTimeText2.setFillColor(sf::Color::Yellow);
+    finalTimeText2.setPosition(250.0f, 460.0f);
 
 
 
@@ -119,6 +133,9 @@ void Game::processEvents() {
                 currentState = GameState::Playing;
                 gameClock.restart();
                 initPlatforms();
+                backgroundMusic.setLoop(true);
+                backgroundMusic.setVolume(40.f);
+                backgroundMusic.play();
             }
         }
     }
@@ -139,6 +156,9 @@ void Game::processEvents() {
             cameraView.setCenter(350.f, 250.f);
             gameClock.restart();
             currentState = GameState::Playing;
+            backgroundMusic.setLoop(true);
+            backgroundMusic.setVolume(40.f);
+            backgroundMusic.play();
         }
         else if (endButton.getGlobalBounds().contains(mousePos)) {
             window.close();
@@ -148,6 +168,9 @@ void Game::processEvents() {
 }
 
 void Game::update(float deltaTime) {
+    for (Shell& shell : shells) {
+        shell.update();
+    }
     player.update(platforms, deltaTime);
     for (Platform* platform : platforms) {
 
@@ -187,13 +210,31 @@ void Game::update(float deltaTime) {
 
         if (player.hp <= 0) {
             currentState = GameState::GameOver;
+                backgroundMusic.stop();
             finalTimeText.setString("Czas gry: " + std::to_string(static_cast<int>(gameClock.getElapsedTime().asSeconds())) + "s");
             return;
         }
         highestPlatformY = currentY;
     }
+    for (Shell& shell : shells) {
+        sf::FloatRect playerFeet = player.getHitbox();
+        playerFeet.top += playerFeet.height - 5.f;  // dolna część tylko
+        playerFeet.height = 5.f;
+
+        if (!shell.isCollected && playerFeet.intersects(shell.getBounds())) {
+            shell.isCollected = true;
+            collectedShells++;
+
+            if (collectedShells % 5 == 0 && player.hp < 3) {
+                player.hp++;
+                updateHeartsDisplay();
+            }
+        }
+
+    }
     sf::Vector2f playerStart = player.getPosition();
     cameraView.setCenter(WINDOW_WIDTH / 2.f, playerStart.y + 100.f);
+
     if (!platforms.empty()) {
         Platform* lastPlatform = platforms.back();
         sf::FloatRect platformBounds = lastPlatform->getBounds();
@@ -210,6 +251,8 @@ void Game::update(float deltaTime) {
 
         if (standsOn) {
             currentState = GameState::Victory;
+            finalTimeText2.setString("Czas gry: " + std::to_string(static_cast<int>(gameClock.getElapsedTime().asSeconds())) + "s");
+            return;
         }
     }
 
@@ -233,6 +276,10 @@ void Game::render() {
     } else if (currentState == GameState::Playing) {
         // 1. Widok gry (z kamerą)
         window.setView(cameraView);
+       // window.draw(backgroundSprite);
+        for ( Shell& shell : shells) {
+            shell.draw(window);
+        }
         for (auto* platform : platforms)
             platform->draw(window);
         player.draw(window);
@@ -257,7 +304,7 @@ void Game::render() {
     else if (currentState == GameState::Victory) {
         window.setView(window.getDefaultView());
         window.draw(victorySprite);
-        window.draw(finalTimeText);
+        window.draw(finalTimeText2);
     }
 
     window.display();
@@ -267,7 +314,7 @@ void Game::render() {
 }
 
 void Game::initPlatforms() {
-    const int numPlatforms = 12;
+    const int numPlatforms = 16;
     const float platformHeight = 0.23f;
     const float verticalSpacing = 60.0f;
     const float maxHorizontalOffset = 150.f;
@@ -279,6 +326,7 @@ void Game::initPlatforms() {
 
     platforms.clear();
     platforms.reserve(numPlatforms);
+
 
     for (int i = 0; i < 10; ++i) {
         float width = (i == 0) ? WINDOW_WIDTH / 100.f : platformWidth;
@@ -321,6 +369,15 @@ void Game::initPlatforms() {
         Platform* moving = new MovingPlatform(x, currentY, width, platformHeight, i);
         platforms.push_back(moving);
         lastX = x;
+    }
+    shells.clear();
+
+    for (int i = 1; i < numPlatforms; ++i) {
+        if (i % 3 == 0) {
+            Platform* p = platforms[i];
+            sf::Vector2f pos = p->getPosition();
+            shells.emplace_back(pos.x + 30.f, pos.y - 30.f, p); // przypisana platforma
+        }
     }
 
 
