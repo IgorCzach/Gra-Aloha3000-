@@ -44,10 +44,10 @@ Game::Game()
     }
     gameOverSprite.setTexture(gameOverTexture);
     gameOverSprite.setPosition(0, 0);
-    if (!backgroundTexture.loadFromFile("C:/Users/Igor/Desktop/Gra_2/tlo3.png")) {
-        std::cerr << "Nie można załadować tła!\n";
-        exit(1);
-    }
+    // if (!backgroundTexture.loadFromFile("C:/Users/Igor/Desktop/Gra_2/tlo3.png")) {
+    //     std::cerr << "Nie można załadować tła!\n";
+    //     exit(1);
+    // }
     backgroundSprite.setTexture(backgroundTexture);
     backgroundSprite.setTextureRect(sf::IntRect(0,2000, WINDOW_WIDTH, 3000));
     if (!backgroundMusic.openFromFile("./Muzyka2.mp3")) {
